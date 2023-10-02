@@ -16,7 +16,6 @@ import edu.gemini.jms.api.DestinationData
 import edu.gemini.jms.api.DestinationType
 import edu.gemini.jms.api.JmsSimpleMessageSelector
 import munit.CatsEffectSuite
-import org.scalatest.matchers.must.Matchers.matchPattern
 
 final case class GmpStatus(
   amq:         ActiveMQJmsProvider,
@@ -109,8 +108,7 @@ final class GiapiStatusSpec extends CatsEffectSuite {
       .use { case (_, c) =>
         c.get[Int]("item:u")
       }
-      .attempt
-      .map(matchPattern { case Left(GiapiException(_)) => })
+      .intercept[GiapiException]
   }
 
   test("Test reading an unknown status item as optional") {
@@ -127,8 +125,7 @@ final class GiapiStatusSpec extends CatsEffectSuite {
       .use { case (g, c) =>
         GmpStatus.closeGmpStatus(g) >> c.get[Int](intItemName)
       }
-      .attempt
-      .map(matchPattern { case Left(GiapiException(_)) => })
+      .intercept[GiapiException]
   }
 
 }

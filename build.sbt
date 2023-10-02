@@ -30,7 +30,6 @@ lazy val giapi = project
         "org.typelevel"      %%% "cats-laws"               % catsVersion % Test,
         "org.typelevel"      %%% "discipline-munit"        % "2.0.0-M3"  % Test,
         "org.typelevel"      %%% "munit-cats-effect"       % "2.0.0-M3"  % Test,
-        "org.typelevel"      %%% "cats-testkit-scalatest"  % "2.1.5"     % Test,
         "edu.gemini.aspen.gmp" % "gmp-statusdb"            % "0.3.7"     % Test,
         "ch.qos.logback"       % "logback-classic"         % "1.4.11"    % Test
       ),
