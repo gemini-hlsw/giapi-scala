@@ -22,23 +22,9 @@ import fs2.Stream
 import giapi.client.commands.Command
 import giapi.client.commands.CommandResultException
 import giapi.client.commands._
-import shapeless.Typeable._
+import scala.reflect.ClassTag
 
 import scala.concurrent.duration._
-
-package object client {
-
-  /**
-   * Allowed types according to GIAPI
-   */
-  implicit val strItemGetter: ItemGetter[String] = new ItemGetter[String] {}
-
-  implicit val doubleItemGetter: ItemGetter[Double] = new ItemGetter[Double] {}
-
-  implicit val intItemGetter: ItemGetter[Int] = new ItemGetter[Int] {}
-
-  implicit val floatItemGetter: ItemGetter[Float] = new ItemGetter[Float] {}
-}
 
 package client {
 
@@ -50,18 +36,29 @@ package client {
   /**
    * Typeclass to present as evidence when calling `Giapi.get`
    */
-  sealed abstract class ItemGetter[A: shapeless.Typeable] {
+  sealed abstract class ItemGetter[A](implicit ct: ClassTag[A]) {
 
     /**
      * Attempt to convert any value to A as sent by StatusHandler
      */
-    def value(p: Any): Option[A] = shapeless.Typeable[A].cast(p)
+    def value(p: Any): Option[A] = ct.unapply(p)
   }
 
   object ItemGetter {
 
     @inline
     def apply[F](implicit instance: ItemGetter[F]): ItemGetter[F] = instance
+
+    /**
+     * Allowed types according to GIAPI
+     */
+    implicit val strItemGetter: ItemGetter[String] = new ItemGetter[String] {}
+
+    implicit val doubleItemGetter: ItemGetter[Double] = new ItemGetter[Double] {}
+
+    implicit val intItemGetter: ItemGetter[Int] = new ItemGetter[Int] {}
+
+    implicit val floatItemGetter: ItemGetter[Float] = new ItemGetter[Float] {}
   }
 
   /**

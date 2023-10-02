@@ -5,6 +5,7 @@ package giapi.client
 
 import cats.Applicative
 import cats.ApplicativeError
+import cats.ApplicativeThrow
 import cats.effect.Async
 import cats.effect.Resource
 import cats.effect.Sync
@@ -122,7 +123,7 @@ object GiapiStatusDb {
   /**
    * Creates a new status db in simulation
    */
-  def simulatedDb[F[_]: ApplicativeError[*[_], Throwable]]: GiapiStatusDb[F] =
+  def simulatedDb[F[_]: ApplicativeThrow]: GiapiStatusDb[F] =
     new GiapiStatusDb[F] {
       def optional(i: String): F[Option[StatusValue]] =
         none.pure[F]
