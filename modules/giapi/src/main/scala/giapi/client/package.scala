@@ -22,9 +22,9 @@ import fs2.Stream
 import giapi.client.commands.Command
 import giapi.client.commands.CommandResultException
 import giapi.client.commands._
-import scala.reflect.ClassTag
 
 import scala.concurrent.duration._
+import scala.reflect.ClassTag
 
 package client {
 
