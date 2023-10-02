@@ -3,12 +3,11 @@
 
 package giapi
 
-import scala.concurrent.duration._
-
 import cats._
+import cats.effect.Temporal
 import cats.effect._
-import cats.effect.std.Queue
 import cats.effect.implicits._
+import cats.effect.std.Queue
 import cats.syntax.all._
 import edu.gemini.aspen.giapi.commands.HandlerResponse.Response
 import edu.gemini.aspen.giapi.commands.SequenceCommand
@@ -24,7 +23,8 @@ import giapi.client.commands.Command
 import giapi.client.commands.CommandResultException
 import giapi.client.commands._
 import shapeless.Typeable._
-import cats.effect.Temporal
+
+import scala.concurrent.duration._
 
 package object client {
 

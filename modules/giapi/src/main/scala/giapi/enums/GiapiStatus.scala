@@ -4,8 +4,8 @@
 package giapi.enums
 
 import cats.syntax.eq._
-import lucuma.core.util.Enumerated
 import lucuma.core.enums.Instrument
+import lucuma.core.util.Enumerated
 
 /**
  * Enumerated type for Giapi Status.
