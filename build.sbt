@@ -18,7 +18,7 @@ lazy val giapi = project
     libraryDependencies ++=
       Seq(
         "org.typelevel"      %%% "cats-core"               % catsVersion,
-        "org.typelevel"      %%% "cats-effect"             % "3.5.1",
+        "org.typelevel"      %%% "cats-effect"             % "3.5.2",
         "co.fs2"             %%% "fs2-core"                % "3.9.2",
         "com.chuusai"        %%% "shapeless"               % "2.3.9",
         "org.typelevel"      %%% "mouse"                   % "1.2.1",
