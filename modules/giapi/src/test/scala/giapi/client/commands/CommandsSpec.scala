@@ -4,8 +4,8 @@
 package giapi.client.commands
 
 import cats.kernel.laws.discipline._
-import munit.DisciplineSuite
 import giapi.client.GiapiArbitraries
+import munit.DisciplineSuite
 
 /**
  * Tests Command typeclasses
