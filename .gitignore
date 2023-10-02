@@ -1,0 +1,15 @@
+*.class
+*.log
+target/
+.idea/
+react-virtualized
+metals.sbt
+.metals/
+.bloop/
+local.*
+node_modules/
+travis/secrets.tar
+.hydra/
+.bsp/
+.vscode/
+.direnv/
