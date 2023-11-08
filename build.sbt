@@ -21,7 +21,7 @@ lazy val giapi = project
         "org.typelevel"      %%% "cats-effect"             % "3.5.2",
         "co.fs2"             %%% "fs2-core"                % "3.9.2",
         "org.typelevel"      %%% "mouse"                   % "1.2.1",
-        "edu.gemini"         %%% "lucuma-core"             % (if (tlIsScala3.value) "0.88.1" else "0.46.0"),
+        "edu.gemini"         %%% "lucuma-core"             % (if (tlIsScala3.value) "0.88.2" else "0.46.0"),
         "edu.gemini.aspen.gmp" % "gmp-commands-jms-client" % "0.2.7",
         "edu.gemini.aspen"     % "giapi-status-service"    % "0.6.7",
         "edu.gemini.jms"       % "jms-activemq-provider"   % "1.6.7",
