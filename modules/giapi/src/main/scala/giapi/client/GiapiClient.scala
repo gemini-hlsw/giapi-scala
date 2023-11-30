@@ -94,12 +94,15 @@ trait GiapiClient[F[_]] {
     )
 
   def genericApply(configuration: Configuration): F[CommandResult] =
+    genericApply(configuration, DefaultCommandTimeout)
+
+  def genericApply(configuration: Configuration, timeout: FiniteDuration): F[CommandResult] =
     giapi.command(Command(
                     SequenceCommand.APPLY,
                     Activity.PRESET_START,
                     configuration
                   ),
-                  DefaultCommandTimeout
+                  timeout
     )
 }
 
