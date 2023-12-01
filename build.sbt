@@ -21,7 +21,7 @@ lazy val giapi = project
         "org.typelevel"      %%% "cats-effect"             % "3.5.2",
         "co.fs2"             %%% "fs2-core"                % "3.9.3",
         "org.typelevel"      %%% "mouse"                   % "1.2.2",
-        "edu.gemini"         %%% "lucuma-core"             % (if (tlIsScala3.value) "0.89.1" else "0.45.0"),
+        "edu.gemini"         %%% "lucuma-core"             % (if (tlIsScala3.value) "0.89.1" else "0.45.1"),
         "edu.gemini.aspen.gmp" % "gmp-commands-jms-client" % "0.2.7",
         "edu.gemini.aspen"     % "giapi-status-service"    % "0.6.7",
         "edu.gemini.jms"       % "jms-activemq-provider"   % "1.6.7",
@@ -31,7 +31,7 @@ lazy val giapi = project
         "org.typelevel"      %%% "discipline-munit"        % "2.0.0-M3"  % Test,
         "org.typelevel"      %%% "munit-cats-effect"       % "2.0.0-M4"  % Test,
         "edu.gemini.aspen.gmp" % "gmp-statusdb"            % "0.3.7"     % Test,
-        "ch.qos.logback"       % "logback-classic"         % "1.4.13"    % Test
+        "ch.qos.logback"       % "logback-classic"         % "1.4.14"    % Test
       ),
     Test / fork := true
   )
