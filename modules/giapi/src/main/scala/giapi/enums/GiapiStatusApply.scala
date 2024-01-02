@@ -1704,6 +1704,26 @@ object GiapiStatusApply {
                                None
       )
 
+  /** @group Constructors */
+  case object GhostBFocusType
+      extends GiapiStatusApply("GhostBFocusType",
+                               Instrument.Ghost,
+                               GiapiType.String,
+                               "ghost:cc:spe:bFocus.type",
+                               "ghost:cc:spe:bFocus.type",
+                               None
+      )
+
+  /** @group Constructors */
+  case object GhostRFocusType
+      extends GiapiStatusApply("GhostRFocusType",
+                               Instrument.Ghost,
+                               GiapiType.String,
+                               "ghost:cc:spe:rFocus.type",
+                               "ghost:cc:spe:rFocus.type",
+                               None
+      )
+
   /** All members of GiapiStatusApply, in canonical order. */
   val all: List[GiapiStatusApply] =
     List(
@@ -1873,7 +1893,9 @@ object GiapiStatusApply {
       GhostAGDoContinuous,
       GhostThXeLamp,
       GhostSlitMaskPositioner,
-      GhostSlitMaskPositionerType
+      GhostSlitMaskPositionerType,
+      GhostBFocusType,
+      GhostRFocusType
     )
 
   /** Select the member of GiapiStatusApply with the given tag, if any. */
