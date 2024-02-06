@@ -27,10 +27,10 @@ object GhostClient {
     url: String
   ): Resource[F, GhostClient[F]] = {
     val ghostStatus: Resource[F, Giapi[F]] =
-      Resource.make(Giapi.giapiConnection[F](url).connect)(_.close)
+      Resource.make(Giapi.giapiConnection[F](url, Nil).connect)(_.close)
 
     val ghostSequence: Resource[F, Giapi[F]] =
-      Resource.make(Giapi.giapiConnection[F](url).connect)(_.close)
+      Resource.make(Giapi.giapiConnection[F](url, Nil).connect)(_.close)
 
     for {
       _ <- ghostStatus

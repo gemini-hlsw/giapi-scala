@@ -116,7 +116,7 @@ package client {
    */
   object Giapi {
 
-    final case class StatusStreamer(aggregate: StatusHandlerAggregate, ss: StatusService)
+    final case class StatusStreamer(aggregate: StatusHandlerAggregate, ss: List[StatusService])
 
     def statusGetter[F[_]: Sync](c: ActiveMQJmsProvider): F[StatusGetter] =
       Sync[F].delay {
@@ -132,12 +132,20 @@ package client {
         new CommandSenderClient(c)
       }
 
-    def statusStreamer[F[_]: Sync](c: ActiveMQJmsProvider): F[StatusStreamer] =
+    def statusStreamer[F[_]: Sync](
+      c:        ActiveMQJmsProvider,
+      prefixes: List[String] = Nil
+    ): F[StatusStreamer] =
       Sync[F].delay {
-        val aggregate     = new StatusHandlerAggregate()
-        val statusService = new StatusService(aggregate, "statusService", "*")
-        statusService.startJms(c)
-        StatusStreamer(aggregate, statusService)
+        val aggregate = new StatusHandlerAggregate()
+        val prefs     = if (prefixes.isEmpty) List(">") else prefixes
+        val services  = prefs.map { p =>
+          val statusService =
+            new StatusService(aggregate, "statusService", p)
+          statusService.startJms(c)
+          statusService
+        }
+        StatusStreamer(aggregate, services)
       }
 
     private def streamItem[F[_]: Async, A: ItemGetter](
@@ -191,7 +199,8 @@ package client {
      *   Effect type
      */
     def giapiConnection[F[_]: Async](
-      url: String
+      url:      String,
+      prefixes: List[String] = Nil
     ): GiapiConnection[F] =
       new GiapiConnection[F] {
         private def giapi(
@@ -228,7 +237,7 @@ package client {
             override def close: F[Unit] =
               for {
                 _ <- Sync[F].delay(sg.stopJms())
-                _ <- Sync[F].delay(ss.ss.stopJms())
+                _ <- ss.ss.traverse(ss => Sync[F].delay(ss.stopJms()))
                 _ <- Sync[F].delay(c.stopConnection())
               } yield ()
 
@@ -238,7 +247,7 @@ package client {
           for {
             sg <- statusGetter[F](c)
             cc <- commandSenderClient[F](c)
-            ss <- statusStreamer[F](c)
+            ss <- statusStreamer[F](c, prefixes)
           } yield giapi(c, sg, cc, ss)
 
         def connect: F[Giapi[F]] =

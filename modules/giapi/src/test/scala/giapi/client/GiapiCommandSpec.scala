@@ -80,7 +80,7 @@ final class GiapiCommandSpec extends CatsEffectSuite {
       _ <- Resource.make(GmpCommands.createGmpCommands(amqUrl, handleCommands))(
              GmpCommands.closeGmpCommands
            )
-      c <- Resource.make(Giapi.giapiConnection[IO](amqUrl).connect)(_.close)
+      c <- Resource.make(Giapi.giapiConnection[IO](amqUrl, Nil).connect)(_.close)
     } yield c
 
   test("Test sending a command with no handlers".ignore) { // This test passes but the backend doesn't clean up properly

@@ -83,7 +83,7 @@ final class GiapiStatusSpec extends CatsEffectSuite {
       g <- Resource.make(GmpStatus.createGmpStatus(amqUrl, intItemName, strItemName))(
              GmpStatus.closeGmpStatus
            )
-      c <- Resource.make(Giapi.giapiConnection[IO](amqUrl).connect)(_.close)
+      c <- Resource.make(Giapi.giapiConnection[IO](amqUrl, Nil).connect)(_.close)
     } yield (g, c)
 
   test("Test reading an existing status item") {

@@ -149,12 +149,14 @@ object GiapiStatusDb {
    *   List of items to monitor
    */
   def newStatusDb[F[_]: Async](
-    url:   String,
-    items: List[String]
+    url:      String,
+    items:    List[String],
+    prefixes: List[String]
   ): F[GiapiStatusDb[F]] =
     for {
       c  <- Sync[F].delay(new ActiveMQJmsProvider(url))       // Build the connection
-      ss <- Giapi.statusStreamer[F](c)                        // giapi artifacts
+      _  <- Sync[F].delay(c.startConnection())                // Connect to amq
+      ss <- Giapi.statusStreamer[F](c, prefixes)              // giapi artifacts
       db <- GiapiDb.newDb
       _  <- initDb[F](c, db, items)                           // Get the initial values
       f  <- streamItemsToDb[F](ss.aggregate, db, items).start // run in the background
@@ -176,9 +178,9 @@ object GiapiStatusDb {
 
       def close: F[Unit] =
         for {
-          _ <- Sync[F].delay(ss.ss.stopJms())    // Close the listener
-          _ <- Sync[F].delay(c.stopConnection()) // Disconnect from amq
-          _ <- Sync[F].delay(f.cancel)           // Stop the fiber
+          _ <- ss.ss.traverse(ss => Sync[F].delay(ss.stopJms())) // Close the listener
+          _ <- Sync[F].delay(c.stopConnection())                 // Disconnect from amq
+          _ <- Sync[F].delay(f.cancel)                           // Stop the fiber
         } yield ()
     }
 
