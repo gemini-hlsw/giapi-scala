@@ -6,7 +6,7 @@ package giapi.client.gpi
 import cats.effect.Resource
 import cats.effect.Temporal
 import cats.effect.kernel.Async
-import cats.syntax.all._
+import cats.syntax.all.*
 import edu.gemini.aspen.giapi.commands.Activity
 import edu.gemini.aspen.giapi.commands.SequenceCommand
 import fs2.Stream
@@ -16,9 +16,9 @@ import giapi.client.GiapiStatusDb
 import giapi.client.commands.Command
 import giapi.client.commands.CommandResult
 import giapi.client.commands.Configuration
-import mouse.boolean._
+import mouse.boolean.*
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 sealed trait GpiClient[F[_]] extends GiapiClient[F] {
 

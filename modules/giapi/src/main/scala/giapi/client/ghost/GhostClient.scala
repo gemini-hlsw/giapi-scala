@@ -3,13 +3,13 @@
 
 package giapi.client.ghost
 
+import cats.effect.*
 import cats.effect.Temporal
-import cats.effect._
-import cats.syntax.all._
+import cats.syntax.all.*
 import giapi.client.Giapi
 import giapi.client.GiapiClient
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 /** Client for GHOST */
 sealed trait GhostClient[F[_]] extends GiapiClient[F]

@@ -6,19 +6,19 @@ package giapi.client
 import cats.effect.IO
 import cats.effect.Resource
 import edu.gemini.aspen.giapi.commands.Activity
+import edu.gemini.aspen.giapi.commands.Command as JCommand
 import edu.gemini.aspen.giapi.commands.CommandSender
 import edu.gemini.aspen.giapi.commands.CompletionListener
 import edu.gemini.aspen.giapi.commands.HandlerResponse
 import edu.gemini.aspen.giapi.commands.HandlerResponse.Response
 import edu.gemini.aspen.giapi.commands.SequenceCommand
-import edu.gemini.aspen.giapi.commands.{Command => JCommand}
 import edu.gemini.aspen.gmp.commands.jms.clientbridge.CommandMessagesBridgeImpl
 import edu.gemini.aspen.gmp.commands.jms.clientbridge.CommandMessagesConsumer
 import edu.gemini.jms.activemq.provider.ActiveMQJmsProvider
-import giapi.client.commands._
+import giapi.client.commands.*
 import munit.CatsEffectSuite
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 final case class GmpCommands(amq: ActiveMQJmsProvider, cmc: CommandMessagesConsumer)
 
@@ -84,7 +84,7 @@ final class GiapiCommandSpec extends CatsEffectSuite {
     } yield c
 
   test("Test sending a command with no handlers".ignore) { // This test passes but the backend doesn't clean up properly
-    client(GmpCommands.amqUrl("test1"), false)
+    client(GmpCommands.amqUrl("test1"), handleCommands = false)
       .use { c =>
         c.command(Command(SequenceCommand.TEST, Activity.PRESET, Configuration.Zero), 1.second)
           .attempt
@@ -93,7 +93,7 @@ final class GiapiCommandSpec extends CatsEffectSuite {
   }
 
   test("Test sending a command with no answer") {
-    client(GmpCommands.amqUrl("test2"), true)
+    client(GmpCommands.amqUrl("test2"), handleCommands = true)
       .use { c =>
         c.command(Command(SequenceCommand.TEST, Activity.PRESET, Configuration.Zero), 1.second)
           .attempt
@@ -107,7 +107,7 @@ final class GiapiCommandSpec extends CatsEffectSuite {
   }
 
   test("Test sending a command with immediate answer") {
-    client(GmpCommands.amqUrl("test3"), true)
+    client(GmpCommands.amqUrl("test3"), handleCommands = true)
       .use { c =>
         c.command(Command(SequenceCommand.INIT, Activity.PRESET, Configuration.Zero), 1.second)
           .attempt
@@ -117,7 +117,7 @@ final class GiapiCommandSpec extends CatsEffectSuite {
 
   test("Test sending a command with accepted but never completed answer") {
     val timeout = 1.second
-    client(GmpCommands.amqUrl("test4"), true)
+    client(GmpCommands.amqUrl("test4"), handleCommands = true)
       .use { c =>
         c.command(Command(SequenceCommand.PARK, Activity.PRESET, Configuration.Zero), timeout)
           .attempt

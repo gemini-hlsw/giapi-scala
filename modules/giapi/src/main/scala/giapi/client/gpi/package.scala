@@ -4,7 +4,7 @@
 package giapi.client.gpi
 
 import cats.Eq
-import cats.syntax.all._
+import cats.syntax.all.*
 
 sealed trait GpiGuiding extends Product with Serializable
 

@@ -3,12 +3,12 @@
 
 package giapi
 
-import cats._
+import cats.*
+import cats.effect.*
 import cats.effect.Temporal
-import cats.effect._
-import cats.effect.implicits._
+import cats.effect.implicits.*
 import cats.effect.std.Queue
-import cats.syntax.all._
+import cats.syntax.all.*
 import edu.gemini.aspen.giapi.commands.HandlerResponse.Response
 import edu.gemini.aspen.giapi.commands.SequenceCommand
 import edu.gemini.aspen.giapi.status.StatusHandler
@@ -19,11 +19,11 @@ import edu.gemini.aspen.giapi.util.jms.status.StatusGetter
 import edu.gemini.aspen.gmp.commands.jms.client.CommandSenderClient
 import edu.gemini.jms.activemq.provider.ActiveMQJmsProvider
 import fs2.Stream
+import giapi.client.commands.*
 import giapi.client.commands.Command
 import giapi.client.commands.CommandResultException
-import giapi.client.commands._
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.reflect.ClassTag
 
 package client {
