@@ -3,7 +3,7 @@
 
 package giapi.client.commands
 
-import cats.kernel.laws.discipline._
+import cats.kernel.laws.discipline.*
 import giapi.client.GiapiArbitraries
 import munit.DisciplineSuite
 

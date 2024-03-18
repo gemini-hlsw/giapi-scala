@@ -3,23 +3,23 @@
 
 package giapi.client
 
-import cats._
-import cats.effect._
-import cats.syntax.all._
+import cats.*
+import cats.effect.*
+import cats.syntax.all.*
 import edu.gemini.aspen.giapi.commands.Activity
+import edu.gemini.aspen.giapi.commands.Command as GiapiCommand
 import edu.gemini.aspen.giapi.commands.ConfigPath
+import edu.gemini.aspen.giapi.commands.Configuration as GiapiConfiguration
 import edu.gemini.aspen.giapi.commands.DefaultConfiguration
 import edu.gemini.aspen.giapi.commands.HandlerResponse
 import edu.gemini.aspen.giapi.commands.HandlerResponse.Response
 import edu.gemini.aspen.giapi.commands.SequenceCommand
-import edu.gemini.aspen.giapi.commands.{Command => GiapiCommand}
-import edu.gemini.aspen.giapi.commands.{Configuration => GiapiConfiguration}
 import edu.gemini.aspen.gmp.commands.jms.client.CommandSenderClient
-import giapi.client.syntax.giapiconfig._
+import giapi.client.syntax.giapiconfig.*
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.duration.FiniteDuration
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 package commands {
 

@@ -3,7 +3,7 @@
 
 package giapi.enums
 
-import cats.syntax.eq._
+import cats.syntax.eq.*
 import lucuma.core.enums.Instrument
 import lucuma.core.util.Enumerated
 

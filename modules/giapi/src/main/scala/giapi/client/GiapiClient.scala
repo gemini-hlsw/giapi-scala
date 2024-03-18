@@ -9,7 +9,7 @@ import giapi.client.commands.Command
 import giapi.client.commands.CommandResult
 import giapi.client.commands.Configuration
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 /////////////////////////////////////////////////////////////////
 // The GiapiClient comprises the common commands for such clients
