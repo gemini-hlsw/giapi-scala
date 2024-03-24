@@ -19,7 +19,7 @@ lazy val giapi = project
       Seq(
         "org.typelevel"      %%% "cats-core"               % catsVersion,
         "org.typelevel"      %%% "cats-effect"             % "3.5.4",
-        "co.fs2"             %%% "fs2-core"                % "3.10.0",
+        "co.fs2"             %%% "fs2-core"                % "3.10.1",
         "org.typelevel"      %%% "mouse"                   % "1.2.3",
         "edu.gemini"         %%% "lucuma-core"             % (if (tlIsScala3.value) "0.94.1" else "0.45.1"),
         "edu.gemini.aspen.gmp" % "gmp-commands-jms-client" % "0.2.7",
