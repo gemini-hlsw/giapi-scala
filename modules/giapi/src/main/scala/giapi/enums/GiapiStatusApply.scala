@@ -1724,6 +1724,16 @@ object GiapiStatusApply {
                                None
       )
 
+  /** @group Constructors */
+  case object GhostCalibrationFilterWheel
+      extends GiapiStatusApply("GhostCalibrationFilterWheel",
+                               Instrument.Ghost,
+                               GiapiType.Int,
+                               "ghost:sad:cc:slu:cfwCO.position",
+                               "ghost:cc:slu:cfwCO.position",
+                               None
+      )
+
   /** All members of GiapiStatusApply, in canonical order. */
   val all: List[GiapiStatusApply] =
     List(
@@ -1895,7 +1905,8 @@ object GiapiStatusApply {
       GhostSlitMaskPositioner,
       GhostSlitMaskPositionerType,
       GhostBFocusType,
-      GhostRFocusType
+      GhostRFocusType,
+      GhostCalibrationFilterWheel
     )
 
   /** Select the member of GiapiStatusApply with the given tag, if any. */
