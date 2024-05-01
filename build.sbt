@@ -28,7 +28,7 @@ lazy val giapi = project
         "edu.gemini.aspen.gmp" % "gmp-commands-jms-bridge" % "0.6.7",
         "edu.gemini.aspen.gmp" % "gmp-status-gateway"      % "0.3.7",
         "org.typelevel"      %%% "cats-laws"               % catsVersion % Test,
-        "org.typelevel"      %%% "discipline-munit"        % "2.0.0-M3"  % Test,
+        "org.typelevel"      %%% "discipline-munit"        % "2.0.0-M4"  % Test,
         "org.typelevel"      %%% "munit-cats-effect"       % "2.0.0-M5"  % Test,
         "edu.gemini.aspen.gmp" % "gmp-statusdb"            % "0.3.7"     % Test,
         "ch.qos.logback"       % "logback-classic"         % "1.4.14"    % Test
