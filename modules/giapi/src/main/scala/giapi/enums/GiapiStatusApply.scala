@@ -1728,9 +1728,19 @@ object GiapiStatusApply {
   case object GhostCalibrationFilterWheel
       extends GiapiStatusApply("GhostCalibrationFilterWheel",
                                Instrument.Ghost,
-                               GiapiType.Int,
+                               GiapiType.String,
                                "ghost:sad:cc:slu:cfwCO.position",
                                "ghost:cc:slu:cfwCO.position",
+                               None
+      )
+
+  /** @group Constructors */
+  case object GhostCalibrationFilterDemand
+      extends GiapiStatusApply("GhostCalibrationFilterWheel",
+                               Instrument.Ghost,
+                               GiapiType.String,
+                               "ghost:sad:cc:slu:cfw.type",
+                               "ghost:cc:slu:cfw.type",
                                None
       )
 
@@ -1906,7 +1916,8 @@ object GiapiStatusApply {
       GhostSlitMaskPositionerType,
       GhostBFocusType,
       GhostRFocusType,
-      GhostCalibrationFilterWheel
+      GhostCalibrationFilterWheel,
+      GhostCalibrationFilterDemand
     )
 
   /** Select the member of GiapiStatusApply with the given tag, if any. */
