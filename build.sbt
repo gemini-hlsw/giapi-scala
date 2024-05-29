@@ -9,7 +9,7 @@ ThisBuild / resolvers += "Gemini Repository".at(
 
 lazy val root = project.in(file(".")).aggregate(giapi).enablePlugins(NoPublishPlugin)
 
-val catsVersion = "2.10.0"
+val catsVersion = "2.12.0"
 
 lazy val giapi = project
   .in(file("modules/giapi"))
