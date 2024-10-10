@@ -17,8 +17,6 @@ import giapi.client.commands.Command
 import giapi.client.commands.CommandCallResult
 import giapi.client.commands.Configuration
 import mouse.boolean.*
-import org.typelevel.log4cats.Logger
-import org.typelevel.log4cats.slf4j.Slf4jLogger
 
 import scala.concurrent.duration.*
 
@@ -182,8 +180,6 @@ object GPIExample extends cats.effect.IOApp {
   import scala.concurrent.duration._
 
   val url = "failover:(tcp://127.0.0.1:61616)"
-
-  private implicit def logger: Logger[IO] = Slf4jLogger.getLoggerFromName[IO]("observe-engine")
 
   val gpi: Resource[IO, GpiClient[IO]] =
     GpiClient.gpiClient[IO]("gpi-example", url, Nil)

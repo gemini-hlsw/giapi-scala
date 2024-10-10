@@ -3,14 +3,11 @@
 
 package giapi.client
 
-import cats.Apply
-import cats.syntax.all.*
 import edu.gemini.aspen.giapi.commands.Activity
 import edu.gemini.aspen.giapi.commands.SequenceCommand
 import giapi.client.commands.Command
 import giapi.client.commands.CommandCallResult
 import giapi.client.commands.Configuration
-import org.typelevel.log4cats.Logger
 
 import scala.concurrent.duration.*
 
@@ -62,16 +59,13 @@ trait GiapiClient[F[_]] {
                   DefaultCommandTimeout
     )
 
-  def observe[A: GiapiConfig](dataLabel: A, timeout: FiniteDuration)(implicit
-    L: Logger[F],
-    A: Apply[F]
-  ): F[CommandCallResult] =
-    L.info("Observe") *> giapi.command(Command(
-                                         SequenceCommand.OBSERVE,
-                                         Activity.PRESET_START,
-                                         Configuration.single(commands.DataLabelCfg, dataLabel)
-                                       ),
-                                       timeout
+  def observe[A: GiapiConfig](dataLabel: A, timeout: FiniteDuration): F[CommandCallResult] =
+    giapi.command(Command(
+                    SequenceCommand.OBSERVE,
+                    Activity.PRESET_START,
+                    Configuration.single(commands.DataLabelCfg, dataLabel)
+                  ),
+                  timeout
     )
 
   def endObserve: F[CommandCallResult] =
@@ -99,23 +93,17 @@ trait GiapiClient[F[_]] {
                   DefaultCommandTimeout
     )
 
-  def genericApply(
-    configuration: Configuration
-  )(implicit L: Logger[F], A: Apply[F]): F[CommandCallResult] =
+  def genericApply(configuration: Configuration): F[CommandCallResult] =
     genericApply(configuration, DefaultCommandTimeout)
 
-  def genericApply(configuration: Configuration, timeout: FiniteDuration)(implicit
-    L: Logger[F],
-    A: Apply[F]
-  ): F[CommandCallResult] =
-    L.info(s"apply") *>
-      giapi.command(Command(
-                      SequenceCommand.APPLY,
-                      Activity.PRESET_START,
-                      configuration
-                    ),
-                    timeout
-      )
+  def genericApply(configuration: Configuration, timeout: FiniteDuration): F[CommandCallResult] =
+    giapi.command(Command(
+                    SequenceCommand.APPLY,
+                    Activity.PRESET_START,
+                    configuration
+                  ),
+                  timeout
+    )
 }
 
 object GiapiClient {

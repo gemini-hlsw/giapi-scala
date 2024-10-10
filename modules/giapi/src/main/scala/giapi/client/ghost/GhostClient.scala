@@ -7,8 +7,6 @@ import cats.effect.*
 import cats.effect.Temporal
 import giapi.client.Giapi
 import giapi.client.GiapiClient
-import org.typelevel.log4cats.Logger
-import org.typelevel.log4cats.slf4j.Slf4jLogger
 
 import scala.concurrent.duration.*
 
@@ -34,7 +32,6 @@ object GhostClient {
 }
 
 object GhostExample extends IOApp {
-  private implicit def logger: Logger[IO] = Slf4jLogger.getLoggerFromName[IO]("observe-engine")
 
   val url = "failover:(tcp://127.0.0.1:61616)"
 
