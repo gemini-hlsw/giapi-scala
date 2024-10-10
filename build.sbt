@@ -1,5 +1,5 @@
-ThisBuild / tlBaseVersion      := "0.2"
-ThisBuild / crossScalaVersions := Seq("2.13.13", "3.4.3")
+ThisBuild / tlBaseVersion      := "0.3"
+ThisBuild / crossScalaVersions := Seq("2.13.14", "3.5.1")
 
 ThisBuild / tlCiReleaseBranches += "main"
 
@@ -9,7 +9,7 @@ ThisBuild / resolvers += "Gemini Repository".at(
 
 lazy val root = project.in(file(".")).aggregate(giapi).enablePlugins(NoPublishPlugin)
 
-val catsVersion = "2.10.0"
+val catsVersion = "2.12.0"
 
 lazy val giapi = project
   .in(file("modules/giapi"))
@@ -19,17 +19,16 @@ lazy val giapi = project
       Seq(
         "org.typelevel"      %%% "cats-core"               % catsVersion,
         "org.typelevel"      %%% "cats-effect"             % "3.5.4",
-        "co.fs2"             %%% "fs2-core"                % "3.10.2",
-        "org.typelevel"      %%% "mouse"                   % "1.2.3",
-        "edu.gemini"         %%% "lucuma-core"             % (if (tlIsScala3.value) "0.99.2" else "0.47.0"),
-        "edu.gemini.aspen.gmp" % "gmp-commands-jms-client" % "0.2.7",
+        "co.fs2"             %%% "fs2-core"                % "3.11.0",
+        "org.typelevel"      %%% "mouse"                   % "1.3.2",
+        "edu.gemini"         %%% "lucuma-core"             % (if (tlIsScala3.value) "0.105.1" else "0.47.0"),
         "edu.gemini.aspen"     % "giapi-status-service"    % "0.6.7",
         "edu.gemini.jms"       % "jms-activemq-provider"   % "1.6.7",
         "edu.gemini.aspen.gmp" % "gmp-commands-jms-bridge" % "0.6.7",
         "edu.gemini.aspen.gmp" % "gmp-status-gateway"      % "0.3.7",
         "org.typelevel"      %%% "cats-laws"               % catsVersion % Test,
-        "org.typelevel"      %%% "discipline-munit"        % "2.0.0-M4"  % Test,
-        "org.typelevel"      %%% "munit-cats-effect"       % "2.0.0-M5"  % Test,
+        "org.typelevel"      %%% "discipline-munit"        % "2.0.0"     % Test,
+        "org.typelevel"      %%% "munit-cats-effect"       % "2.0.0"     % Test,
         "edu.gemini.aspen.gmp" % "gmp-statusdb"            % "0.3.7"     % Test,
         "ch.qos.logback"       % "logback-classic"         % "1.4.14"    % Test
       ),

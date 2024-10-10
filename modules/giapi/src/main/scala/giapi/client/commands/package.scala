@@ -5,29 +5,34 @@ package giapi.client
 
 import cats.*
 import cats.effect.*
+import cats.effect.implicits.*
 import cats.syntax.all.*
 import edu.gemini.aspen.giapi.commands.Activity
 import edu.gemini.aspen.giapi.commands.Command as GiapiCommand
 import edu.gemini.aspen.giapi.commands.ConfigPath
 import edu.gemini.aspen.giapi.commands.Configuration as GiapiConfiguration
 import edu.gemini.aspen.giapi.commands.DefaultConfiguration
-import edu.gemini.aspen.giapi.commands.HandlerResponse
 import edu.gemini.aspen.giapi.commands.HandlerResponse.Response
 import edu.gemini.aspen.giapi.commands.SequenceCommand
-import edu.gemini.aspen.gmp.commands.jms.client.CommandSenderClient
 import giapi.client.syntax.giapiconfig.*
 
-import scala.concurrent.duration.Duration
 import scala.concurrent.duration.FiniteDuration
 import scala.jdk.CollectionConverters.*
 
 package commands {
 
-  final case class CommandResult(response: Response)
-  final case class CommandResultException(response: Response, message: String)
-      extends RuntimeException
+  sealed trait CommandCallResult {
+    val response: Response
+  }
+  final case class CommandResult(response: Response) extends CommandCallResult
+  final case class CommandResultException private (response: Response, message: String)
+      extends RuntimeException(message)
+      with CommandCallResult
 
   object CommandResultException {
+
+    def apply(message: String): CommandResultException =
+      CommandResultException(Response.ERROR, message)
 
     def timedOut(after: FiniteDuration): CommandResultException =
       CommandResultException(Response.ERROR, s"Timed out response after: $after")
@@ -99,39 +104,12 @@ package object commands {
    *   the result of the operation
    */
   def sendCommand[F[_]: Async](
-    commandsClient: CommandSenderClient,
+    commandsClient: CommandSenderClient[F],
     command:        Command,
-    timeout:        Duration
-  ): F[CommandResult] =
-    Async[F].async { cb =>
-      Async[F].delay {
-        val hr = commandsClient.sendCommand(
-          command.toGiapi,
-          (hr: HandlerResponse, _: GiapiCommand) => {
-            if (hr.getResponse === Response.ERROR || hr.getResponse === Response.NOANSWER) {
-              cb(Left(CommandResultException(hr.getResponse, hr.getMessage)))
-            } else {
-              cb(Right(CommandResult(hr.getResponse)))
-            }
-            ()
-          },
-          timeout.toMillis
-        )
-        if (hr.getResponse === Response.ERROR || hr.getResponse === Response.NOANSWER) {
-          cb(
-            Left(
-              CommandResultException(hr.getResponse,
-                                     if (hr.getResponse === Response.NOANSWER)
-                                       "No answer from the instrument"
-                                     else hr.getMessage
-              )
-            )
-          )
-        } else if (hr.getResponse === Response.COMPLETED) {
-          cb(Right(CommandResult(hr.getResponse)))
-        }
-        // A third case is ACCEPTED but that is handled on the callback
-        Some(Async[F].unit)
-      }
-    }
+    timeOut:        FiniteDuration
+  ): F[CommandCallResult] = {
+    val error = CommandResultException.timedOut(timeOut)
+    val e     = ApplicativeError[F, Throwable].raiseError[CommandCallResult](error)
+    commandsClient.sendCommand(command).timeoutTo(timeOut, e)
+  }
 }

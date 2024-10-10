@@ -6,7 +6,6 @@ package giapi
 import cats.*
 import cats.effect.*
 import cats.effect.Temporal
-import cats.effect.implicits.*
 import cats.effect.std.Queue
 import cats.syntax.all.*
 import edu.gemini.aspen.giapi.commands.HandlerResponse.Response
@@ -16,12 +15,10 @@ import edu.gemini.aspen.giapi.status.StatusItem
 import edu.gemini.aspen.giapi.statusservice.StatusHandlerAggregate
 import edu.gemini.aspen.giapi.statusservice.StatusService
 import edu.gemini.aspen.giapi.util.jms.status.StatusGetter
-import edu.gemini.aspen.gmp.commands.jms.client.CommandSenderClient
 import edu.gemini.jms.activemq.provider.ActiveMQJmsProvider
 import fs2.Stream
 import giapi.client.commands.*
 import giapi.client.commands.Command
-import giapi.client.commands.CommandResultException
 
 import scala.concurrent.duration.*
 import scala.reflect.ClassTag
@@ -68,7 +65,7 @@ package client {
    *   Effect type
    */
   trait GiapiConnection[F[_]] {
-    def connect: F[Giapi[F]]
+    def newGiapiConnection: Resource[F, Giapi[F]]
   }
 
   /**
@@ -96,9 +93,9 @@ package client {
      * makes handling easier with callbacks on Java land but on IO-land it makes more sense to wait
      * for ERROR/COMPLETED and do async calls above this level
      *
-     * This decision may be review in the future
+     * This decision may be reviewed in the future
      */
-    def command(command: Command, timeout: FiniteDuration): F[CommandResult]
+    def command(command: Command, timeout: FiniteDuration): F[CommandCallResult]
 
     /**
      * Returns a stream of values for the status item.
@@ -125,12 +122,11 @@ package client {
         sg
       }
 
-    private def commandSenderClient[F[_]: Applicative](
-      c: ActiveMQJmsProvider
-    ): F[CommandSenderClient] =
-      Applicative[F].pure {
-        new CommandSenderClient(c)
-      }
+    private def commandSenderClient[F[_]: Async](
+      name: String,
+      c:    ActiveMQJmsProvider
+    ): Resource[F, CommandSenderClient[F]] =
+      CommandSenderClient.commandSenderClient[F](name, c)
 
     def statusStreamer[F[_]: Sync](
       c:        ActiveMQJmsProvider,
@@ -199,18 +195,17 @@ package client {
      *   Effect type
      */
     def giapiConnection[F[_]: Async](
+      name:     String,
       url:      String,
       prefixes: List[String] = Nil
     ): GiapiConnection[F] =
       new GiapiConnection[F] {
         private def giapi(
-          c:  ActiveMQJmsProvider,
           sg: StatusGetter,
-          cc: CommandSenderClient,
+          cc: CommandSenderClient[F],
           ss: StatusStreamer
-        ) =
-          new Giapi[F] {
-            private val commandsAckTimeout = 2000.milliseconds
+        ): Resource[F, Giapi[F]] =
+          Resource.make((new Giapi[F] {
 
             override def get[A: ItemGetter](statusItem: String): F[A] =
               getO[A](statusItem).flatMap {
@@ -225,11 +220,11 @@ package client {
                 Option(item).map(_.getValue)
               }
 
-            override def command(command: Command, timeOut: FiniteDuration): F[CommandResult] = {
-              val error = CommandResultException.timedOut(timeOut)
-              val e     = ApplicativeError[F, Throwable].raiseError[CommandResult](error)
-              commands.sendCommand(cc, command, commandsAckTimeout).timeoutTo(timeOut, e)
-            }
+            override def command(
+              command: Command,
+              timeOut: FiniteDuration
+            ): F[CommandCallResult] =
+              commands.sendCommand(cc, command, timeOut)
 
             override def stream[A: ItemGetter](statusItem: String): F[Stream[F, A]] =
               streamItem[F, A](ss.aggregate, statusItem)
@@ -238,31 +233,34 @@ package client {
               for {
                 _ <- Sync[F].delay(sg.stopJms())
                 _ <- ss.ss.traverse(ss => Sync[F].delay(ss.stopJms()))
-                _ <- Sync[F].delay(c.stopConnection())
               } yield ()
 
-          }
+          }).pure[F])(_.close)
 
-        private def build(c: ActiveMQJmsProvider): F[Giapi[F]] =
+        private def build(c: ActiveMQJmsProvider): Resource[F, Giapi[F]] =
           for {
-            sg <- statusGetter[F](c)
-            cc <- commandSenderClient[F](c)
-            ss <- statusStreamer[F](c, prefixes)
-          } yield giapi(c, sg, cc, ss)
+            sg <- Resource.eval(statusGetter[F](c))
+            cc <- commandSenderClient[F](name, c)
+            ss <- Resource.eval(statusStreamer[F](c, prefixes))
+            g  <- giapi(sg, cc, ss)
+          } yield g
 
-        def connect: F[Giapi[F]] =
-          for {
-            c <- Sync[F].delay(new ActiveMQJmsProvider(url)) // Build the connection
-            _ <- Sync[F].delay(c.startConnection())          // Start the connection
-            c <- build(c)                                    // Build the interpreter
-          } yield c
+        private def amq: Resource[F, ActiveMQJmsProvider] =
+          Resource.make(Sync[F].delay {
+            val amq = new ActiveMQJmsProvider(url)
+            amq.startConnection()
+            amq
+          })(c => Sync[F].delay(c.stopConnection()))
+
+        def newGiapiConnection: Resource[F, Giapi[F]] =
+          amq.flatMap(build)
       }
 
     /**
      * Interpreter on Id
      */
     def giapiConnectionId: GiapiConnection[Id] = new GiapiConnection[Id] {
-      override def connect: Id[Giapi[Id]] = new Giapi[Id] {
+      override def newGiapiConnection: Resource[Id, Giapi[Id]] = Resource.pure(new Giapi[Id] {
         override def get[A: ItemGetter](statusItem: String): Id[A] =
           sys.error(s"Cannot read $statusItem")
         override def getO[A: ItemGetter](statusItem: String): Id[Option[A]] = None
@@ -271,7 +269,7 @@ package client {
         override def command(command: Command, timeout: FiniteDuration): Id[CommandResult] =
           CommandResult(Response.COMPLETED)
         override def close: Id[Unit]                                                       = ()
-      }
+      })
     }
 
     /**
@@ -281,13 +279,13 @@ package client {
       T: Temporal[F],
       F: ApplicativeError[F, Throwable]
     ): GiapiConnection[F] = new GiapiConnection[F] {
-      override def connect: F[Giapi[F]] = F.pure(new Giapi[F] {
+      override def newGiapiConnection: Resource[F, Giapi[F]] = Resource.pure(new Giapi[F] {
         override def get[A: ItemGetter](statusItem: String): F[A] =
           F.raiseError(new RuntimeException(s"Cannot read $statusItem"))
         override def getO[A: ItemGetter](statusItem: String): F[Option[A]] = F.pure(None)
-        override def stream[A: ItemGetter](statusItem: String): F[Stream[F, A]]           =
+        override def stream[A: ItemGetter](statusItem: String): F[Stream[F, A]]               =
           F.pure(Stream.empty.covary[F])
-        override def command(command: Command, timeout: FiniteDuration): F[CommandResult] =
+        override def command(command: Command, timeout: FiniteDuration): F[CommandCallResult] =
           if (command.sequenceCommand === SequenceCommand.OBSERVE) {
             T.sleep(timeout) *>
               F.pure(CommandResult(Response.COMPLETED))
@@ -295,7 +293,7 @@ package client {
             T.sleep(5.seconds) *>
               F.pure(CommandResult(Response.COMPLETED))
           }
-        override def close: F[Unit]                                                       = F.unit
+        override def close: F[Unit]                                                           = F.unit
       })
     }
 

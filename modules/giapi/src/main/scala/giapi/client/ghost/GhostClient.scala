@@ -5,7 +5,6 @@ package giapi.client.ghost
 
 import cats.effect.*
 import cats.effect.Temporal
-import cats.syntax.all.*
 import giapi.client.Giapi
 import giapi.client.GiapiClient
 
@@ -19,23 +18,16 @@ object GhostClient {
 
   // Used for simulations
   def simulatedGhostClient[F[_]: Temporal]: Resource[F, GhostClient[F]] =
-    Resource.eval(
-      Giapi.simulatedGiapiConnection[F].connect.map(new GhostClientImpl(_))
-    )
+    Giapi.simulatedGiapiConnection[F].newGiapiConnection.map(new GhostClientImpl(_))
 
   def ghostClient[F[_]: Async](
-    url: String
+    name: String,
+    url:  String
   ): Resource[F, GhostClient[F]] = {
-    val ghostStatus: Resource[F, Giapi[F]] =
-      Resource.make(Giapi.giapiConnection[F](url, Nil).connect)(_.close)
-
     val ghostSequence: Resource[F, Giapi[F]] =
-      Resource.make(Giapi.giapiConnection[F](url, Nil).connect)(_.close)
+      Giapi.giapiConnection[F](s"$name-commands", url, Nil).newGiapiConnection
 
-    for {
-      _ <- ghostStatus
-      c <- ghostSequence
-    } yield new GhostClientImpl(c)
+    ghostSequence.map(new GhostClientImpl(_))
   }
 }
 
@@ -44,7 +36,7 @@ object GhostExample extends IOApp {
   val url = "failover:(tcp://127.0.0.1:61616)"
 
   val ghostClient: Resource[IO, GhostClient[IO]] =
-    GhostClient.ghostClient(url)
+    GhostClient.ghostClient("ghost-example", url)
 
   def run(args: List[String]): IO[ExitCode] =
     ghostClient.use { client =>
