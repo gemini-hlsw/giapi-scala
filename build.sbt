@@ -1,5 +1,5 @@
 ThisBuild / tlBaseVersion      := "0.2"
-ThisBuild / crossScalaVersions := Seq("2.13.13", "3.4.3")
+ThisBuild / crossScalaVersions := Seq("2.13.14", "3.4.3")
 
 ThisBuild / tlCiReleaseBranches += "main"
 
@@ -22,8 +22,9 @@ lazy val giapi = project
         "co.fs2"             %%% "fs2-core"                % "3.10.2",
         "org.typelevel"      %%% "mouse"                   % "1.2.3",
         "edu.gemini"         %%% "lucuma-core"             % (if (tlIsScala3.value) "0.99.2" else "0.47.0"),
-        "edu.gemini.aspen.gmp" % "gmp-commands-jms-client" % "0.2.7",
         "edu.gemini.aspen"     % "giapi-status-service"    % "0.6.7",
+        "org.typelevel"       %% "log4cats-core"           % "2.7.0",
+        "org.typelevel"       %% "log4cats-slf4j"          % "2.7.0",
         "edu.gemini.jms"       % "jms-activemq-provider"   % "1.6.7",
         "edu.gemini.aspen.gmp" % "gmp-commands-jms-bridge" % "0.6.7",
         "edu.gemini.aspen.gmp" % "gmp-status-gateway"      % "0.3.7",

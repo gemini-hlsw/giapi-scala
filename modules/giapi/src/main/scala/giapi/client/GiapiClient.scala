@@ -3,11 +3,14 @@
 
 package giapi.client
 
+import cats.Apply
+import cats.syntax.all.*
 import edu.gemini.aspen.giapi.commands.Activity
 import edu.gemini.aspen.giapi.commands.SequenceCommand
 import giapi.client.commands.Command
-import giapi.client.commands.CommandResult
+import giapi.client.commands.CommandCallResult
 import giapi.client.commands.Configuration
+import org.typelevel.log4cats.Logger
 
 import scala.concurrent.duration.*
 
@@ -19,91 +22,100 @@ trait GiapiClient[F[_]] {
 
   def giapi: Giapi[F]
 
-  def test: F[CommandResult] =
+  def test: F[CommandCallResult] =
     giapi.command(Command(SequenceCommand.TEST, Activity.PRESET_START, Configuration.Zero),
                   DefaultCommandTimeout
     )
 
-  def init: F[CommandResult] =
+  def init: F[CommandCallResult] =
     giapi.command(Command(SequenceCommand.INIT, Activity.PRESET_START, Configuration.Zero),
                   DefaultCommandTimeout
     )
 
-  def datum: F[CommandResult] =
+  def datum: F[CommandCallResult] =
     giapi.command(Command(SequenceCommand.DATUM, Activity.PRESET_START, Configuration.Zero),
                   DefaultCommandTimeout
     )
 
-  def park: F[CommandResult] =
+  def park: F[CommandCallResult] =
     giapi.command(Command(SequenceCommand.PARK, Activity.PRESET_START, Configuration.Zero),
                   DefaultCommandTimeout
     )
 
-  def verify: F[CommandResult] =
+  def verify: F[CommandCallResult] =
     giapi.command(Command(SequenceCommand.VERIFY, Activity.PRESET_START, Configuration.Zero),
                   DefaultCommandTimeout
     )
 
-  def endVerify: F[CommandResult] =
+  def endVerify: F[CommandCallResult] =
     giapi.command(Command(SequenceCommand.END_VERIFY, Activity.PRESET_START, Configuration.Zero),
                   DefaultCommandTimeout
     )
 
-  def guide: F[CommandResult] =
+  def guide: F[CommandCallResult] =
     giapi.command(Command(SequenceCommand.GUIDE, Activity.PRESET_START, Configuration.Zero),
                   DefaultCommandTimeout
     )
 
-  def endGuide: F[CommandResult] =
+  def endGuide: F[CommandCallResult] =
     giapi.command(Command(SequenceCommand.END_GUIDE, Activity.PRESET_START, Configuration.Zero),
                   DefaultCommandTimeout
     )
 
-  def observe[A: GiapiConfig](dataLabel: A, timeout: FiniteDuration): F[CommandResult] =
-    giapi.command(Command(
-                    SequenceCommand.OBSERVE,
-                    Activity.PRESET_START,
-                    Configuration.single(commands.DataLabelCfg, dataLabel)
-                  ),
-                  timeout
+  def observe[A: GiapiConfig](dataLabel: A, timeout: FiniteDuration)(implicit
+    L: Logger[F],
+    A: Apply[F]
+  ): F[CommandCallResult] =
+    L.info("Observe") *> giapi.command(Command(
+                                         SequenceCommand.OBSERVE,
+                                         Activity.PRESET_START,
+                                         Configuration.single(commands.DataLabelCfg, dataLabel)
+                                       ),
+                                       timeout
     )
 
-  def endObserve: F[CommandResult] =
+  def endObserve: F[CommandCallResult] =
     giapi.command(Command(SequenceCommand.END_OBSERVE, Activity.PRESET_START, Configuration.Zero),
                   DefaultCommandTimeout
     )
 
-  def pause: F[CommandResult] =
+  def pause: F[CommandCallResult] =
     giapi.command(Command(SequenceCommand.PAUSE, Activity.PRESET_START, Configuration.Zero),
                   DefaultCommandTimeout
     )
 
-  def continue: F[CommandResult] =
+  def continue: F[CommandCallResult] =
     giapi.command(Command(SequenceCommand.CONTINUE, Activity.PRESET_START, Configuration.Zero),
                   DefaultCommandTimeout
     )
 
-  def stop: F[CommandResult] =
+  def stop: F[CommandCallResult] =
     giapi.command(Command(SequenceCommand.STOP, Activity.PRESET_START, Configuration.Zero),
                   DefaultCommandTimeout
     )
 
-  def abort: F[CommandResult] =
+  def abort: F[CommandCallResult] =
     giapi.command(Command(SequenceCommand.ABORT, Activity.PRESET_START, Configuration.Zero),
                   DefaultCommandTimeout
     )
 
-  def genericApply(configuration: Configuration): F[CommandResult] =
+  def genericApply(
+    configuration: Configuration
+  )(implicit L: Logger[F], A: Apply[F]): F[CommandCallResult] =
     genericApply(configuration, DefaultCommandTimeout)
 
-  def genericApply(configuration: Configuration, timeout: FiniteDuration): F[CommandResult] =
-    giapi.command(Command(
-                    SequenceCommand.APPLY,
-                    Activity.PRESET_START,
-                    configuration
-                  ),
-                  timeout
-    )
+  def genericApply(configuration: Configuration, timeout: FiniteDuration)(implicit
+    L: Logger[F],
+    A: Apply[F]
+  ): F[CommandCallResult] =
+    L.info(s"apply") *>
+      giapi.command(Command(
+                      SequenceCommand.APPLY,
+                      Activity.PRESET_START,
+                      configuration
+                    ),
+                    timeout
+      )
 }
 
 object GiapiClient {
