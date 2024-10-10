@@ -75,7 +75,7 @@ object CommandSenderClient {
           stringValue(a, JmsKeys.GMP_HANDLER_RESPONSE_KEY).map(HandlerResponse.Response.valueOf)
         val error    = stringValue(a, JmsKeys.GMP_HANDLER_RESPONSE_ERROR_KEY)
         (response, error) match {
-          case (Some(r), Some(e)) => CommandResultException(r, e).some
+          case (Some(_), Some(e)) => CommandResultException(e).some
           case (Some(r), None)    => CommandResult(r).some
           case _                  => none
         }
@@ -134,11 +134,11 @@ object CommandSenderClient {
                         // Cannot happen, but required by the compiler
                         case Some(CommandResult(Response.ERROR))         =>
                           safeClose()
-                        case Some(r @ CommandResult(Response.NOANSWER))  =>
+                        case Some(CommandResult(Response.NOANSWER))      =>
                           safeClose()
                           cb(
                             Left(
-                              CommandResultException(r.response, "No answer from the instrument")
+                              CommandResultException("No answer from the instrument")
                             )
                           )
                         case Some(CommandResultException(_, msg))        =>

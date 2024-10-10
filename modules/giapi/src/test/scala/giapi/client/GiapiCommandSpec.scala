@@ -89,13 +89,7 @@ final class GiapiCommandSpec extends CatsEffectSuite {
           .attempt
       }
       .map(
-        assertEquals(_,
-                     Left(
-                       CommandResultException(HandlerResponse.Response.ERROR,
-                                              "Timed out response after: 1 second"
-                       )
-                     )
-        )
+        assertEquals(_, Left(CommandResultException("Timed out response after: 1 second")))
       )
   }
 
@@ -108,11 +102,7 @@ final class GiapiCommandSpec extends CatsEffectSuite {
       .map(
         assertEquals(
           _,
-          Left(
-            CommandResultException(HandlerResponse.Response.NOANSWER,
-                                   "No answer from the instrument"
-            )
-          )
+          Left(CommandResultException("No answer from the instrument"))
         )
       )
   }

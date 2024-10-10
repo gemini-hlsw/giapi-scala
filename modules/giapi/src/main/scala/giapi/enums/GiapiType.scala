@@ -44,8 +44,8 @@ object GiapiType {
   /** @group Typeclass Instances */
   implicit val GiapiTypeEnumerated: Enumerated[GiapiType] =
     new Enumerated[GiapiType] {
-      def all                                          = GiapiType.all
-      def tag(a: GiapiType)                            = a.tag
+      def all = GiapiType.all
+      def tag(a: GiapiType) = a.tag
       override def unsafeFromTag(s: String): GiapiType =
         GiapiType.unsafeFromTag(s)
     }
