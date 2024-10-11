@@ -14,7 +14,7 @@ import giapi.client.Giapi
 import giapi.client.GiapiClient
 import giapi.client.GiapiStatusDb
 import giapi.client.commands.Command
-import giapi.client.commands.CommandResult
+import giapi.client.commands.CommandCallResult
 import giapi.client.commands.Configuration
 import mouse.boolean.*
 
@@ -30,13 +30,13 @@ sealed trait GpiClient[F[_]] extends GiapiClient[F] {
 
   def heartbeatS: F[Stream[F, Int]]
 
-  def calExitShutter(position: Boolean): F[CommandResult]
+  def calExitShutter(position: Boolean): F[CommandCallResult]
 
-  def observingMode(mode: String): F[CommandResult]
+  def observingMode(mode: String): F[CommandCallResult]
 
-  def ifsConfigure(integrationTime: Double, coAdds: Int, readoutMode: Int): F[CommandResult]
+  def ifsConfigure(integrationTime: Double, coAdds: Int, readoutMode: Int): F[CommandCallResult]
 
-  def alignAndCalib: F[CommandResult]
+  def alignAndCalib: F[CommandCallResult]
 
   def statusDb: GiapiStatusDb[F]
 }
@@ -81,7 +81,7 @@ object GpiClient {
     // //////////////////////
 
     // TODO Use OCS constants for open/close
-    private def shutter(shutterName: String, position: Boolean): F[CommandResult] =
+    private def shutter(shutterName: String, position: Boolean): F[CommandCallResult] =
       giapi.command(Command(
                       SequenceCommand.APPLY,
                       Activity.PRESET_START,
@@ -90,22 +90,22 @@ object GpiClient {
                     DefaultCommandTimeout
       )
 
-    def entranceShutter(position: Boolean): F[CommandResult] =
+    def entranceShutter(position: Boolean): F[CommandCallResult] =
       shutter("entranceShutter", position)
 
-    def calExitShutter(position: Boolean): F[CommandResult] =
+    def calExitShutter(position: Boolean): F[CommandCallResult] =
       shutter("calExitShutter", position)
 
-    def calEntranceShutter(position: Boolean): F[CommandResult] =
+    def calEntranceShutter(position: Boolean): F[CommandCallResult] =
       shutter("calEntranceShutter", position)
 
-    def calReferenceShutter(position: Boolean): F[CommandResult] =
+    def calReferenceShutter(position: Boolean): F[CommandCallResult] =
       shutter("calReferenceShutter", position)
 
-    def calScienceShutter(position: Boolean): F[CommandResult] =
+    def calScienceShutter(position: Boolean): F[CommandCallResult] =
       shutter("calScienceShutter", position)
 
-    def alignAndCalib: F[CommandResult] =
+    def alignAndCalib: F[CommandCallResult] =
       giapi.command(Command(
                       SequenceCommand.APPLY,
                       Activity.PRESET_START,
@@ -115,7 +115,7 @@ object GpiClient {
       )
 
     // TODO Use OCS constants
-    def observingMode(mode: String): F[CommandResult] =
+    def observingMode(mode: String): F[CommandCallResult] =
       giapi.command(Command(SequenceCommand.APPLY,
                             Activity.PRESET_START,
                             Configuration.single("gpi:observationMode.mode", mode)
@@ -123,7 +123,7 @@ object GpiClient {
                     DefaultCommandTimeout
       )
 
-    def ifsFilter(filter: String): F[CommandResult] =
+    def ifsFilter(filter: String): F[CommandCallResult] =
       giapi.command(Command(
                       SequenceCommand.APPLY,
                       Activity.PRESET_START,
@@ -132,7 +132,7 @@ object GpiClient {
                     DefaultCommandTimeout
       )
 
-    def ifsConfigure(integrationTime: Double, coAdds: Int, readoutMode: Int): F[CommandResult] =
+    def ifsConfigure(integrationTime: Double, coAdds: Int, readoutMode: Int): F[CommandCallResult] =
       giapi.command(
         Command(
           SequenceCommand.APPLY,
@@ -149,21 +149,18 @@ object GpiClient {
 
   // Used for simulations
   def simulatedGpiClient[F[_]: Temporal]: Resource[F, GpiClient[F]] =
-    Resource.eval(
-      Giapi
-        .simulatedGiapiConnection[F]
-        .connect
-        .map(new GpiClientImpl[F](_, GiapiStatusDb.simulatedDb[F]))
-    )
+    Giapi
+      .simulatedGiapiConnection[F]
+      .newGiapiConnection
+      .map(new GpiClientImpl[F](_, GiapiStatusDb.simulatedDb[F]))
 
   def gpiClient[F[_]: Async](
+    name:              String,
     url:               String,
     statusesToMonitor: List[String]
   ): Resource[F, GpiClient[F]] = {
     val giapi: Resource[F, Giapi[F]] =
-      Resource.make(
-        Giapi.giapiConnection[F](url, Nil).connect
-      )(_.close)
+      Giapi.giapiConnection[F](name, url, Nil).newGiapiConnection
 
     val db: Resource[F, GiapiStatusDb[F]] =
       Resource.make(
@@ -185,7 +182,7 @@ object GPIExample extends cats.effect.IOApp {
   val url = "failover:(tcp://127.0.0.1:61616)"
 
   val gpi: Resource[IO, GpiClient[IO]] =
-    GpiClient.gpiClient[IO](url, Nil)
+    GpiClient.gpiClient[IO]("gpi-example", url, Nil)
 
   val gpiStatus: IO[(Vector[Int], Int, String, Float)] =
     gpi.use { client =>
@@ -197,7 +194,7 @@ object GPIExample extends cats.effect.IOApp {
       } yield (hs, h, f, o)
     }
 
-  val gpiSequence: IO[CommandResult] =
+  val gpiSequence: IO[CommandCallResult] =
     gpi.use { client =>
       for {
         _ <- client.calExitShutter(true)                 // Open the shutter

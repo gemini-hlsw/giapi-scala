@@ -10,7 +10,6 @@ import edu.gemini.aspen.giapi.commands.Command as JCommand
 import edu.gemini.aspen.giapi.commands.CommandSender
 import edu.gemini.aspen.giapi.commands.CompletionListener
 import edu.gemini.aspen.giapi.commands.HandlerResponse
-import edu.gemini.aspen.giapi.commands.HandlerResponse.Response
 import edu.gemini.aspen.giapi.commands.SequenceCommand
 import edu.gemini.aspen.gmp.commands.jms.clientbridge.CommandMessagesBridgeImpl
 import edu.gemini.aspen.gmp.commands.jms.clientbridge.CommandMessagesConsumer
@@ -33,7 +32,7 @@ object GmpCommands {
   /**
    * Setup a mini gmp that can store and provide status items
    */
-  def createGmpCommands(amqUrl: String, handleCommands: Boolean): IO[GmpCommands] = IO.apply {
+  def createGmpCommands(amqUrl: String, handleCommands: Boolean): IO[GmpCommands] = IO {
     // Local in memory broker
     val amq                     = new ActiveMQJmsProvider(amqUrl)
     amq.startConnection()
@@ -50,7 +49,7 @@ object GmpCommands {
       ): HandlerResponse =
         command.getSequenceCommand match {
           case SequenceCommand.INIT => HandlerResponse.COMPLETED
-          case SequenceCommand.PARK => HandlerResponse.ACCEPTED
+          case SequenceCommand.PARK => HandlerResponse.STARTED
           case _                    => HandlerResponse.NOANSWER
         }
 
@@ -80,16 +79,18 @@ final class GiapiCommandSpec extends CatsEffectSuite {
       _ <- Resource.make(GmpCommands.createGmpCommands(amqUrl, handleCommands))(
              GmpCommands.closeGmpCommands
            )
-      c <- Resource.make(Giapi.giapiConnection[IO](amqUrl, Nil).connect)(_.close)
+      c <- Giapi.giapiConnection[IO]("test", amqUrl, Nil).newGiapiConnection
     } yield c
 
-  test("Test sending a command with no handlers".ignore) { // This test passes but the backend doesn't clean up properly
+  test("Test sending a command with no handlers") {
     client(GmpCommands.amqUrl("test1"), handleCommands = false)
       .use { c =>
         c.command(Command(SequenceCommand.TEST, Activity.PRESET, Configuration.Zero), 1.second)
           .attempt
       }
-      .map(assertEquals(_, Left(CommandResultException(Response.ERROR, "Message cannot be null"))))
+      .map(
+        assertEquals(_, Left(CommandResultException("Timed out response after: 1 second")))
+      )
   }
 
   test("Test sending a command with no answer") {
@@ -101,7 +102,7 @@ final class GiapiCommandSpec extends CatsEffectSuite {
       .map(
         assertEquals(
           _,
-          Left(CommandResultException(Response.NOANSWER, "No answer from the instrument"))
+          Left(CommandResultException("No answer from the instrument"))
         )
       )
   }
@@ -112,7 +113,7 @@ final class GiapiCommandSpec extends CatsEffectSuite {
         c.command(Command(SequenceCommand.INIT, Activity.PRESET, Configuration.Zero), 1.second)
           .attempt
       }
-      .map(assertEquals(_, Right(CommandResult(Response.COMPLETED))))
+      .map(assertEquals(_, Right(CommandResult(HandlerResponse.Response.COMPLETED))))
   }
 
   test("Test sending a command with accepted but never completed answer") {
