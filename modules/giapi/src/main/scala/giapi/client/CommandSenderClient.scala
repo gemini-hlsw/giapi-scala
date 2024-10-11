@@ -30,14 +30,14 @@ import javax.jms.Session
 trait CommandSenderClient[F[_]] {
 
   /**
-   * Sends a command to the GMP. The listener will be called along the process, however the the
-   * result of the process is returned as the final value
+   * Sends a command to the GMP. The listener will be called along the process, however the result
+   * of the process is returned as the final value
    *
    * Note this method does not time out in case the remote accepts the command but fails in between
    * the caller is responsible of defining a timeout
    *
    * @param command
-   * @param listener
+   *   A giapi command to be sent to the instrument
    * @return
    */
   def sendCommand(command: Command): F[CommandCallResult]
@@ -90,8 +90,7 @@ object CommandSenderClient {
      *   - If the response is ACCEPTED, the command is accepted and the result is returned
      *   - If the response is STARTED, we still wait for a completed to to be sent. At this level
      *     we'd wait forever. It is recommend to add an external timeout
-     *   - If the response is COMPLETED, the command was completed successfully and returned to the
-     *     cliient
+     *   - If the response is COMPLETED, the command was completed successfully. client
      *   - If the response is NOANSWER, the command was not answered by the instrument, maybe it is
      *     not connected or dead. There is a timeout for this defined on the GMP side
      *   - If the response is ERROR, something failed on the instrument and we return it upstream
@@ -108,15 +107,16 @@ object CommandSenderClient {
             Sync[F]
               .delay {
                 // Await for reply on this consumer
-                val responseConsumer  = session.createConsumer(dest)
+                val responseConsumer                                           = session.createConsumer(dest)
                 // We need to close the consumer after we get a response or we will leak
                 // resources and get meessages for every command
-                def safeClose(): Unit =
+                def respondAndClose(r: Either[Throwable, CommandResult]): Unit =
                   try
                     responseConsumer.close()
                   catch {
                     case _: Exception =>
-                  }
+                  } finally
+                    cb(r)
 
                 // Listen to a JMS message, parse it and return the result to the caller
                 responseConsumer.setMessageListener(new MessageListener {
@@ -124,29 +124,24 @@ object CommandSenderClient {
                     if (response.getJMSCorrelationID === id) {
                       parseResponse(response) match {
                         case Some(r @ CommandResult(Response.ACCEPTED))  =>
-                          safeClose()
-                          cb(Right(r))
+                          respondAndClose(Right(r))
                         case Some(CommandResult(Response.STARTED))       =>
                         // We have to wait, do nothing
                         case Some(r @ CommandResult(Response.COMPLETED)) =>
-                          safeClose()
-                          cb(Right(r))
+                          respondAndClose(Right(r))
                         // Cannot happen, but required by the compiler
-                        case Some(CommandResult(Response.ERROR))         =>
-                          safeClose()
+                        case Some(r @ CommandResult(Response.ERROR))     =>
+                          respondAndClose(Right(r))
                         case Some(CommandResult(Response.NOANSWER))      =>
-                          safeClose()
-                          cb(
+                          respondAndClose(
                             Left(
                               CommandResultException("No answer from the instrument")
                             )
                           )
                         case Some(CommandResultException(_, msg))        =>
-                          safeClose()
-                          cb(Left(new GiapiException(msg)))
+                          respondAndClose(Left(new GiapiException(msg)))
                         case None                                        =>
-                          safeClose()
-                          cb(
+                          respondAndClose(
                             Left(
                               new GiapiException("Incorrect response, possible coding error")
                             )
