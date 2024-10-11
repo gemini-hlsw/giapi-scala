@@ -1931,8 +1931,8 @@ object GiapiStatusApply {
   /** @group Typeclass Instances */
   implicit val GiapiStatusApplyEnumerated: Enumerated[GiapiStatusApply] =
     new Enumerated[GiapiStatusApply] {
-      def all = GiapiStatusApply.all
-      def tag(a: GiapiStatusApply) = a.tag
+      def all                                                 = GiapiStatusApply.all
+      def tag(a: GiapiStatusApply)                            = a.tag
       override def unsafeFromTag(s: String): GiapiStatusApply =
         GiapiStatusApply.unsafeFromTag(s)
     }
