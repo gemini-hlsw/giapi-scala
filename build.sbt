@@ -30,7 +30,7 @@ lazy val giapi = project
         "org.typelevel"      %%% "discipline-munit"        % "2.0.0"     % Test,
         "org.typelevel"      %%% "munit-cats-effect"       % "2.0.0"     % Test,
         "edu.gemini.aspen.gmp" % "gmp-statusdb"            % "0.3.7"     % Test,
-        "ch.qos.logback"       % "logback-classic"         % "1.5.14"    % Test
+        "ch.qos.logback"       % "logback-classic"         % "1.5.15"    % Test
       ),
     Test / fork := true
   )
