@@ -18,7 +18,7 @@ lazy val giapi = project
     libraryDependencies ++=
       Seq(
         "org.typelevel"      %%% "cats-core"               % catsVersion,
-        "org.typelevel"      %%% "cats-effect"             % "3.5.7",
+        "org.typelevel"      %%% "cats-effect"             % "3.6.1",
         "co.fs2"             %%% "fs2-core"                % "3.11.0",
         "org.typelevel"      %%% "mouse"                   % "1.3.2",
         "edu.gemini"         %%% "lucuma-core"             % (if (tlIsScala3.value) "0.113.0" else "0.47.0"),
