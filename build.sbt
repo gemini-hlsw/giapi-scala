@@ -1,7 +1,7 @@
 ThisBuild / tlBaseVersion      := "0.4"
 ThisBuild / crossScalaVersions := Seq("3.7.4")
 
-ThisBuild / tlCiReleaseBranches += "main"
+ThisBuild / tlCiReleaseBranches += "gpp"
 
 ThisBuild / resolvers += "Gemini Repository".at(
   "https://github.com/gemini-hlsw/maven-repo/raw/master/releases"
