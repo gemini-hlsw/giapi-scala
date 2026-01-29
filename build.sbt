@@ -1,5 +1,5 @@
-ThisBuild / tlBaseVersion      := "0.3"
-ThisBuild / crossScalaVersions := Seq("2.13.15", "3.6.3")
+ThisBuild / tlBaseVersion      := "0.4"
+ThisBuild / crossScalaVersions := Seq("3.7.4")
 
 ThisBuild / tlCiReleaseBranches += "main"
 
@@ -9,7 +9,7 @@ ThisBuild / resolvers += "Gemini Repository".at(
 
 lazy val root = project.in(file(".")).aggregate(giapi).enablePlugins(NoPublishPlugin)
 
-val catsVersion = "2.12.0"
+val catsVersion = "2.13.0"
 
 lazy val giapi = project
   .in(file("modules/giapi"))
@@ -18,10 +18,10 @@ lazy val giapi = project
     libraryDependencies ++=
       Seq(
         "org.typelevel"      %%% "cats-core"               % catsVersion,
-        "org.typelevel"      %%% "cats-effect"             % "3.5.7",
-        "co.fs2"             %%% "fs2-core"                % "3.11.0",
+        "org.typelevel"      %%% "cats-effect"             % "3.6.3",
+        "co.fs2"             %%% "fs2-core"                % "3.12.2",
         "org.typelevel"      %%% "mouse"                   % "1.3.2",
-        "edu.gemini"         %%% "lucuma-core"             % (if (tlIsScala3.value) "0.113.0" else "0.47.0"),
+        "edu.gemini"         %%% "lucuma-core"             % (if (tlIsScala3.value) "0.171.2" else "0.47.0"),
         "edu.gemini.aspen"     % "giapi-status-service"    % "0.6.7",
         "edu.gemini.jms"       % "jms-activemq-provider"   % "1.6.7",
         "edu.gemini.aspen.gmp" % "gmp-commands-jms-bridge" % "0.6.7",

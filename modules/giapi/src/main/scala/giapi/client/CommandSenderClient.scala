@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2023 Association of Universities for Research in Astronomy, Inc. (AURA)
+// Copyright (c) 2016-2025 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
 package giapi.client
@@ -48,7 +48,7 @@ object CommandSenderClient {
   private val CommandsDestination = JmsKeys.GW_COMMAND_TOPIC
   private val ReplyDestination    = JmsKeys.GW_COMMAND_REPLY_QUEUE
 
-  private case class CommandSenderClientImpl[F[_]: Async](
+  private case class CommandSenderClientImpl[F[_]: Async, UUIDGen](
     connection: Connection,
     session:    Session,
     producer:   MessageProducer,
