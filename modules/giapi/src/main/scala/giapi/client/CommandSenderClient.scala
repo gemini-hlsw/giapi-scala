@@ -6,6 +6,7 @@ package giapi.client
 import cats.effect.Async
 import cats.effect.Resource
 import cats.effect.Sync
+import cats.effect.std.SecureRandom
 import cats.effect.std.UUIDGen
 import cats.syntax.all.*
 import edu.gemini.aspen.giapi.commands.HandlerResponse
@@ -48,7 +49,7 @@ object CommandSenderClient {
   private val CommandsDestination = JmsKeys.GW_COMMAND_TOPIC
   private val ReplyDestination    = JmsKeys.GW_COMMAND_REPLY_QUEUE
 
-  private case class CommandSenderClientImpl[F[_]: Async, UUIDGen](
+  private case class CommandSenderClientImpl[F[_]: Async: SecureRandom](
     connection: Connection,
     session:    Session,
     producer:   MessageProducer,
@@ -102,7 +103,7 @@ object CommandSenderClient {
     override def sendCommand(command: Command): F[CommandCallResult] =
       Async[F].async(cb =>
         for {
-          id    <- UUIDGen.randomUUID.map(_.toString)
+          id    <- UUIDGen[F].randomUUID.map(_.toString)
           reply <-
             Sync[F]
               .delay {
@@ -169,7 +170,7 @@ object CommandSenderClient {
 
   }
 
-  private def setupConnection[F[_]: Async](
+  private def setupConnection[F[_]: Async: SecureRandom](
     name: String,
     c:    ActiveMQJmsProvider
   ): F[CommandSenderClientImpl[F]] = Sync[F].delay {
@@ -190,5 +191,8 @@ object CommandSenderClient {
     name: String,
     c:    ActiveMQJmsProvider
   ): Resource[F, CommandSenderClient[F]] =
-    Resource.make(setupConnection(name, c))(_.close)
+    for {
+      given SecureRandom[F] <- Resource.eval(SecureRandom.javaSecuritySecureRandom[F])
+      r                     <- Resource.make(setupConnection(name, c))(_.close)
+    } yield r
 }
