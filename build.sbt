@@ -1,5 +1,5 @@
 ThisBuild / tlBaseVersion      := "0.3"
-ThisBuild / crossScalaVersions := Seq("2.13.15", "3.6.3")
+ThisBuild / crossScalaVersions := Seq("2.13.16", "3.6.3")
 
 ThisBuild / tlCiReleaseBranches += "main"
 
@@ -11,20 +11,10 @@ lazy val root = project.in(file(".")).aggregate(giapi).enablePlugins(NoPublishPl
 
 val catsVersion = "2.12.0"
 
-import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport._
-import de.heikoseeberger.sbtheader.License
-
 lazy val giapi = project
   .in(file("modules/giapi"))
   .settings(
-    name          := "giapi",
-    headerLicense := Some(
-      HeaderLicense.Custom(
-        """|Copyright (c) 2016-2025 Association of Universities for Research in Astronomy, Inc. (AURA)
-           |For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
-           |""".stripMargin
-      )
-    ),
+    name        := "giapi",
     libraryDependencies ++=
       Seq(
         "org.typelevel"      %%% "cats-core"               % catsVersion,
@@ -42,5 +32,5 @@ lazy val giapi = project
         "edu.gemini.aspen.gmp" % "gmp-statusdb"            % "0.3.7"     % Test,
         "ch.qos.logback"       % "logback-classic"         % "1.5.26"    % Test
       ),
-    Test / fork   := true
+    Test / fork := true
   )
