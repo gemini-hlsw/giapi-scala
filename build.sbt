@@ -17,7 +17,7 @@ import de.heikoseeberger.sbtheader.License
 lazy val giapi = project
   .in(file("modules/giapi"))
   .settings(
-    name        := "giapi",
+    name          := "giapi",
     headerLicense := Some(
       HeaderLicense.Custom(
         """|Copyright (c) 2016-2025 Association of Universities for Research in Astronomy, Inc. (AURA)
@@ -42,5 +42,5 @@ lazy val giapi = project
         "edu.gemini.aspen.gmp" % "gmp-statusdb"            % "0.3.7"     % Test,
         "ch.qos.logback"       % "logback-classic"         % "1.5.26"    % Test
       ),
-    Test / fork := true
+    Test / fork   := true
   )
