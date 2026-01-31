@@ -4,11 +4,10 @@
 package giapi.client.ghost
 
 import cats.effect.*
-import cats.syntax.all.*
 import cats.effect.Temporal
+import cats.syntax.all.*
 import giapi.client.Giapi
 import giapi.client.GiapiClient
-
 import giapi.client.GiapiStatusDb
 import giapi.client.syntax.status.*
 
