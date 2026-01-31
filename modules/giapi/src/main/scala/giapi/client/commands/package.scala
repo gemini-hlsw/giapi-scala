@@ -49,6 +49,12 @@ package commands {
     def remove(path: String): Configuration =
       Configuration(config - ConfigPath.configPath(path))
 
+    def when(f: Configuration => Boolean): Configuration =
+      if (f(this)) this else Configuration.Zero
+
+    def unless(f: Configuration => Boolean): Configuration =
+      if (f(this)) Configuration.Zero else this
+
     def toGiapi: GiapiConfiguration =
       new DefaultConfiguration(new java.util.TreeMap(config.asJava))
   }

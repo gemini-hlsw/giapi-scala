@@ -9,7 +9,6 @@ import cats.effect.Temporal
 import giapi.client.Giapi
 import giapi.client.GiapiClient
 
-import scala.concurrent.duration.*
 import giapi.client.GiapiStatusDb
 import giapi.client.syntax.status.*
 
