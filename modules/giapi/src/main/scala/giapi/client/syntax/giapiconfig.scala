@@ -5,14 +5,9 @@ package giapi.client.syntax
 
 import giapi.client.GiapiConfig
 
-final class GiapiConfigOps[A](val a: A) extends AnyVal {
-  def configValue(implicit c: GiapiConfig[A]): String =
-    c.configValue(a)
-}
+trait GiapiConfigOps:
+  extension [A](a: A)
+    def configValue(implicit c: GiapiConfig[A]): String =
+      c.configValue(a)
 
-trait ToGiapiConfigOps {
-  implicit def ToGiapiConfigOps[A](value: A): GiapiConfigOps[A] =
-    new GiapiConfigOps(value)
-}
-
-object giapiconfig extends ToGiapiConfigOps
+object giapiconfig extends GiapiConfigOps

@@ -74,7 +74,7 @@ package client {
    * @tparam F
    *   Effect Type
    */
-  trait Giapi[F[_]]           {
+  trait Giapi[F[_]] {
 
     /**
      * Returns a value for the status item. If not found or there is an error, an exception could be

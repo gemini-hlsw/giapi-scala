@@ -82,12 +82,13 @@ object GpiClient {
 
     // TODO Use OCS constants for open/close
     private def shutter(shutterName: String, position: Boolean): F[CommandCallResult] =
-      giapi.command(Command(
-                      SequenceCommand.APPLY,
-                      Activity.PRESET_START,
-                      Configuration.single(s"gpi:selectShutter.$shutterName", position.fold(1, 0))
-                    ),
-                    DefaultCommandTimeout
+      giapi.command(
+        Command(
+          SequenceCommand.APPLY,
+          Activity.PRESET_START,
+          Configuration.single(s"gpi:selectShutter.$shutterName", position.fold(1, 0))
+        ),
+        DefaultCommandTimeout
       )
 
     def entranceShutter(position: Boolean): F[CommandCallResult] =
