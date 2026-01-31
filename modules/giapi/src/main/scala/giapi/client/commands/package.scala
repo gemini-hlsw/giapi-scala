@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2023 Association of Universities for Research in Astronomy, Inc. (AURA)
+// Copyright (c) 2016-2025 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
 package giapi.client
@@ -48,6 +48,12 @@ package commands {
 
     def remove(path: String): Configuration =
       Configuration(config - ConfigPath.configPath(path))
+
+    def when(f: Configuration => Boolean): Configuration =
+      if (f(this)) this else Configuration.Zero
+
+    def unless(f: Configuration => Boolean): Configuration =
+      if (f(this)) Configuration.Zero else this
 
     def toGiapi: GiapiConfiguration =
       new DefaultConfiguration(new java.util.TreeMap(config.asJava))
