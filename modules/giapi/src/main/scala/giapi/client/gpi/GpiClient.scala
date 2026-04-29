@@ -166,7 +166,7 @@ object GpiClient {
     val db: Resource[F, GiapiStatusDb[F]] =
       Resource.make(
         GiapiStatusDb
-          .newStatusDb[F](url, statusesToMonitor, Nil)
+          .newStatusDb[F](url, statusesToMonitor)
       )(_.close)
 
     (giapi, db).mapN(new GpiClientImpl[F](_, _)).widen[GpiClient[F]]
