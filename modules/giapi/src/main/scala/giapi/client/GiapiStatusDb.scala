@@ -146,7 +146,7 @@ object GiapiStatusDb {
    * @param url
    *   Url of the giapi server
    * @param items
-   *   List of items to monitor (in-memory filter applied to messages received)
+   *   List of items to monitor
    * @param filters
    *   JMS subscription suffixes appended to `GMP.STATUS.`
    */
