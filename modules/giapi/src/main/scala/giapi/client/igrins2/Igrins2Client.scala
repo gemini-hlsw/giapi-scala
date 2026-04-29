@@ -78,7 +78,7 @@ object Igrins2Client {
     val db: Resource[F, GiapiStatusDb[F]] =
       Resource.make(
         GiapiStatusDb
-          .newStatusDb[F](url, List(TimeProgress, CurrentStatus, ObsTime), List("*"))
+          .newStatusDb[F](url, List(TimeProgress, CurrentStatus, ObsTime))
       )(_.close)
 
     (giapi, db).mapN(new Igrins2ClientImpl[F](_, _)).widen[Igrins2Client[F]]

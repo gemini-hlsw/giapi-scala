@@ -141,22 +141,25 @@ object GiapiStatusDb {
     }
 
   /**
-   * Creates a new status db that listens for status items as they are produced
+   * Creates a new status db that listens for status items as they are produced.
    *
    * @param url
    *   Url of the giapi server
    * @param items
    *   List of items to monitor
+   * @param filters
+   *   JMS subscription suffixes appended to `GMP.STATUS.`
    */
   def newStatusDb[F[_]: Async](
-    url:      String,
-    items:    List[String],
-    prefixes: List[String]
-  ): F[GiapiStatusDb[F]] =
+    url:     String,
+    items:   List[String],
+    filters: List[String] = Nil
+  ): F[GiapiStatusDb[F]] = {
+    val effectiveFilters = if (filters.isEmpty) items else filters
     for {
       c  <- Sync[F].delay(new ActiveMQJmsProvider(url))       // Build the connection
       _  <- Sync[F].delay(c.startConnection())                // Connect to amq
-      ss <- Giapi.statusStreamer[F](c, prefixes)              // giapi artifacts
+      ss <- Giapi.statusStreamer[F](c, effectiveFilters)      // giapi artifacts
       db <- GiapiDb.newDb
       _  <- initDb[F](c, db, items)                           // Get the initial values
       f  <- streamItemsToDb[F](ss.aggregate, db, items).start // run in the background
@@ -183,5 +186,6 @@ object GiapiStatusDb {
           _ <- Sync[F].delay(f.cancel)                           // Stop the fiber
         } yield ()
     }
+  }
 
 }
