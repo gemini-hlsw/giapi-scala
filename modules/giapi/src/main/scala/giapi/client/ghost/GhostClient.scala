@@ -44,7 +44,7 @@ object GhostClient {
     val db: Resource[F, GiapiStatusDb[F]] =
       Resource.make(
         GiapiStatusDb
-          .newStatusDb[F](url, List(GuidingState), List("*"))
+          .newStatusDb[F](url, List(GuidingState))
       )(_.close)
 
     (ghostSequence, db).mapN(new GhostClientImpl(_, _))
