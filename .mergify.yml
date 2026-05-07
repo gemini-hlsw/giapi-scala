@@ -14,10 +14,15 @@ pull_request_rules:
     - body~=labels:.*early-semver-minor
     - 'title=flake.lock: Update'
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   - status-success=Test (ubuntu-22.04, 2.13, temurin@17)
 >>>>>>> 480aeb1 (Update sbt-typelevel)
   - status-success=Test (ubuntu-22.04, 3, temurin@17)
+=======
+  - status-success=Test (ubuntu-22.04, 2.13, temurin@25)
+  - status-success=Test (ubuntu-22.04, 3, temurin@25)
+>>>>>>> 9b95128 (Run prePR with sbt-typelevel)
   actions:
     merge: {}
 - name: Label giapi PRs
