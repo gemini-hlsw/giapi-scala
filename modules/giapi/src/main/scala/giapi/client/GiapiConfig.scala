@@ -3,6 +3,8 @@
 
 package giapi.client
 
+import java.util.Locale
+
 // Produce a configuration string for Giapi.
 trait GiapiConfig[T] {
   def configValue(t: T): String
@@ -11,8 +13,8 @@ trait GiapiConfig[T] {
 object GiapiConfig {
   implicit val stringConfig: GiapiConfig[String] = t => t
   implicit val intConfig: GiapiConfig[Int]       = _.toString
-  implicit val doubleConfig: GiapiConfig[Double] = d => f"$d%1.6f"
-  implicit val floatConfig: GiapiConfig[Float]   = d => f"$d%1.6f"
+  implicit val doubleConfig: GiapiConfig[Double] = d => "%1.6f".formatLocal(Locale.US, d)
+  implicit val floatConfig: GiapiConfig[Float]   = d => "%1.6f".formatLocal(Locale.US, d)
 
   @inline
   def apply[A](implicit instance: GiapiConfig[A]): GiapiConfig[A] = instance
