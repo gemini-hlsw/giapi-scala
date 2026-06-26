@@ -1744,6 +1744,26 @@ object GiapiStatusApply {
                                None
       )
 
+  /** @group Constructors */
+  case object GhostIFU1GuideType
+      extends GiapiStatusApply("GhostIFU1GuideType",
+                               Instrument.Ghost,
+                               GiapiType.String,
+                               "ghost:sad:cc:cu:ifu1.guide_type",
+                               "ghost:cc:cu:ifu1.guide_type",
+                               None
+      )
+
+  /** @group Constructors */
+  case object GhostIFU2GuideType
+      extends GiapiStatusApply("GhostIFU2GuideType",
+                               Instrument.Ghost,
+                               GiapiType.String,
+                               "ghost:sad:cc:cu:ifu2.guide_type",
+                               "ghost:cc:cu:ifu2.guide_type",
+                               None
+      )
+
   /** All members of GiapiStatusApply, in canonical order. */
   val all: List[GiapiStatusApply] =
     List(
@@ -1917,7 +1937,9 @@ object GiapiStatusApply {
       GhostBFocusType,
       GhostRFocusType,
       GhostCalibrationFilterWheel,
-      GhostCalibrationFilterDemand
+      GhostCalibrationFilterDemand,
+      GhostIFU1GuideType,
+      GhostIFU2GuideType
     )
 
   /** Select the member of GiapiStatusApply with the given tag, if any. */
