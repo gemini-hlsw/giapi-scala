@@ -49,7 +49,7 @@ object CommandSenderClient {
   private val CommandsDestination = JmsKeys.GW_COMMAND_TOPIC
   private val ReplyDestination    = JmsKeys.GW_COMMAND_REPLY_QUEUE
 
-  private case class CommandSenderClientImpl[F[_]: Async: SecureRandom](
+  private case class CommandSenderClientImpl[F[_]: Async: UUIDGen](
     connection: Connection,
     session:    Session,
     producer:   MessageProducer,
@@ -170,7 +170,7 @@ object CommandSenderClient {
 
   }
 
-  private def setupConnection[F[_]: Async: SecureRandom](
+  private def setupConnection[F[_]: Async: UUIDGen](
     name: String,
     c:    ActiveMQJmsProvider
   ): F[CommandSenderClientImpl[F]] = Sync[F].delay {
@@ -187,7 +187,7 @@ object CommandSenderClient {
     CommandSenderClientImpl[F](connection, session, producer, dest)
   }
 
-  def commandSenderClient[F[_]: Async](
+  def commandSenderClient[F[_]: Async: UUIDGen](
     name: String,
     c:    ActiveMQJmsProvider
   ): Resource[F, CommandSenderClient[F]] =

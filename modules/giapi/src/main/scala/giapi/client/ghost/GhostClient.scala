@@ -5,6 +5,7 @@ package giapi.client.ghost
 
 import cats.effect.*
 import cats.effect.Temporal
+import cats.effect.std.UUIDGen
 import giapi.client.Giapi
 import giapi.client.GiapiClient
 
@@ -20,7 +21,7 @@ object GhostClient {
   def simulatedGhostClient[F[_]: Temporal]: Resource[F, GhostClient[F]] =
     Giapi.simulatedGiapiConnection[F].newGiapiConnection.map(new GhostClientImpl(_))
 
-  def ghostClient[F[_]: Async](
+  def ghostClient[F[_]: Async: UUIDGen](
     name: String,
     url:  String
   ): Resource[F, GhostClient[F]] = {
