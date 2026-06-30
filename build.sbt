@@ -1,5 +1,5 @@
-ThisBuild / tlBaseVersion      := "0.4"
-ThisBuild / crossScalaVersions := Seq("3.8.3")
+ThisBuild / tlBaseVersion      := "0.5"
+ThisBuild / crossScalaVersions := Seq("3.8.4")
 
 ThisBuild / tlCiReleaseBranches += "gpp"
 
@@ -21,7 +21,7 @@ lazy val giapi = project
         "org.typelevel"      %%% "cats-effect"             % "3.7.0",
         "co.fs2"             %%% "fs2-core"                % "3.13.0",
         "org.typelevel"      %%% "mouse"                   % "1.4.0",
-        "edu.gemini"         %%% "lucuma-core"             % "0.184.1",
+        "edu.gemini"         %%% "lucuma-core"             % "0.214.1",
         "edu.gemini.aspen"     % "giapi-status-service"    % "0.6.7",
         "edu.gemini.jms"       % "jms-activemq-provider"   % "1.6.7",
         "edu.gemini.aspen.gmp" % "gmp-commands-jms-bridge" % "0.6.7",
