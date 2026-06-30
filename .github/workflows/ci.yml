@@ -29,6 +29,7 @@ jobs:
       matrix:
         os: [ubuntu-22.04]
 <<<<<<< HEAD
+<<<<<<< HEAD
         scala: [3]
 =======
         scala: [2.13, 3]
@@ -36,6 +37,9 @@ jobs:
 >>>>>>> 480aeb1 (Update sbt-typelevel)
         java: [temurin@17]
 =======
+=======
+        scala: [3]
+>>>>>>> 8d9ffce (Discard the scala 2 build)
         java: [temurin@25]
 >>>>>>> 9b95128 (Run prePR with sbt-typelevel)
     runs-on: ${{ matrix.os }}

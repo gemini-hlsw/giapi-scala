@@ -6,6 +6,7 @@ package giapi.client.gpi
 import cats.effect.Resource
 import cats.effect.Temporal
 import cats.effect.kernel.Async
+import cats.effect.std.UUIDGen
 import cats.syntax.all.*
 import edu.gemini.aspen.giapi.commands.Activity
 import edu.gemini.aspen.giapi.commands.SequenceCommand
@@ -155,7 +156,7 @@ object GpiClient {
       .newGiapiConnection
       .map(new GpiClientImpl[F](_, GiapiStatusDb.simulatedDb[F]))
 
-  def gpiClient[F[_]: Async](
+  def gpiClient[F[_]: Async: UUIDGen](
     name:              String,
     url:               String,
     statusesToMonitor: List[String]

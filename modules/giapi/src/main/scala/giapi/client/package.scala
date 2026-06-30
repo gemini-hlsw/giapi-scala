@@ -6,7 +6,9 @@ package giapi
 import cats.*
 import cats.effect.*
 import cats.effect.Temporal
+import cats.effect.std.Dispatcher
 import cats.effect.std.Queue
+import cats.effect.std.UUIDGen
 import cats.syntax.all.*
 import edu.gemini.aspen.giapi.commands.HandlerResponse.Response
 import edu.gemini.aspen.giapi.commands.SequenceCommand
@@ -19,14 +21,12 @@ import edu.gemini.jms.activemq.provider.ActiveMQJmsProvider
 import fs2.Stream
 import giapi.client.commands.*
 import giapi.client.commands.Command
+import giapi.client.commands.CommandResult
 
 import scala.concurrent.duration.*
 import scala.reflect.ClassTag
 
 package client {
-
-  import cats.effect.std.Dispatcher
-  import giapi.client.commands.CommandResult
 
   final case class GiapiException(str: String) extends RuntimeException(str)
 
@@ -122,7 +122,7 @@ package client {
         sg
       }
 
-    private def commandSenderClient[F[_]: Async](
+    private def commandSenderClient[F[_]: Async: UUIDGen](
       name: String,
       c:    ActiveMQJmsProvider
     ): Resource[F, CommandSenderClient[F]] =
@@ -194,7 +194,7 @@ package client {
      * @tparam F
      *   Effect type
      */
-    def giapiConnection[F[_]: Async](
+    def giapiConnection[F[_]: Async: UUIDGen](
       name:     String,
       url:      String,
       prefixes: List[String] = Nil

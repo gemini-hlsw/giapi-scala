@@ -5,6 +5,7 @@ package giapi.client.igrins2
 
 import cats.*
 import cats.effect.*
+import cats.effect.std.UUIDGen
 import cats.syntax.all.*
 import edu.gemini.aspen.giapi.commands.Activity
 import edu.gemini.aspen.giapi.commands.SequenceCommand
@@ -68,7 +69,7 @@ object Igrins2Client {
       .newGiapiConnection
       .map(new Igrins2ClientImpl[F](_, GiapiStatusDb.simulatedDb[F]))
 
-  def igrins2Client[F[_]: Async](
+  def igrins2Client[F[_]: Async: UUIDGen](
     name: String,
     url:  String
   ): Resource[F, Igrins2Client[F]] = {
